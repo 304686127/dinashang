@@ -1,0 +1,6 @@
+删除其他多余应用
+改动settings.py和urls.py，添加图片储存路径
+在settings中增加跨域访问许可和时间格式设置
+在app中增加storage.py文件和utils.py文件，设置图片储存方式和上传方法
+在app中增加config.py文件声明协议和域名（域名暂定为空）
+完善models.py的Goods类，改变了图片存储格式，增加了读取的方法
