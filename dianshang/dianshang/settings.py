@@ -75,17 +75,24 @@ WSGI_APPLICATION = 'dianshang.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.mysql',
+#        'NAME': 'red',
+#        'USER': 'root',
+#        'PASSWORD': 'userpassword',
+#        'HOST': '127.0.0.1',
+#        'PORT': '3307',
+#    }
+#}
+# 先用着测试数据库
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'red',
-        'USER': 'root',
-        'PASSWORD': 'userpassword',
-        'HOST': '127.0.0.1',
-        'PORT': '3307',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -113,7 +120,8 @@ LANGUAGE_CODE = 'zh_Hans'
 
 TIME_ZONE = 'UTC'
 
-USE_I18N = True
+USE_I18N = False
+# 我把国际化翻译选项关掉了
 
 USE_L10N = False
 DATETIME_FORMAT = 'Y-m-d H:i:s'

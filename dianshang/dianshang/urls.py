@@ -17,8 +17,12 @@ from django.conf.urls import url, include
 import django
 from dianshang import settings
 from django.contrib import admin
+from django.views.static import serve
+# 这里我修改了一下，不然我的显示'django.views.static' is not a package
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^assets/(?P<path>.*)$', django.views.static.serve, {'document_root': settings.STATIC_ROOT}),
+    url(r'^assets/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
+    url(r'^', include('usercenter.urls')),
 ]
