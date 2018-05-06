@@ -4,3 +4,10 @@
 在app中增加storage.py文件和utils.py文件，设置图片储存方式和上传方法
 在app中增加config.py文件声明协议和域名（域名暂定为空）
 完善models.py的Goods类，改变了图片存储格式，增加了读取的方法
+
+
+在setting文件里关闭了国际化选项，不然我的系统报错
+增加了首页轮播图的模型
+修改了一下Goods和GoodSort模型的方法
+完成了首页api的view函数
+
