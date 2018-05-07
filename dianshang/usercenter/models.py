@@ -3,14 +3,14 @@ from django.db import models
 from usercenter import config
 from usercenter.storage import *
 
-
 # 用户信息
+# 变量名称太奇怪了，我改一下
 class UserInfo(models.Model):
-    uName = models.CharField(max_length=30)
-    uPassword = models.CharField(max_length=20)
-    uEmail = models.CharField(max_length=30)
-    uPhoneNumber = models.CharField(max_length=15)
-    uRegDate = models.DateTimeField(auto_now_add=True)
+    uname = models.CharField(max_length=30)
+    upassword = models.CharField(max_length=20)
+    uemail = models.CharField(max_length=30)
+    uphonenumber = models.CharField(max_length=15)
+    uregDate = models.DateTimeField(auto_now_add=True)
     isactive = models.BooleanField(default=False)
 
     def __str__(self):
@@ -149,7 +149,7 @@ class index_img(models.Model):
     imgname = models.CharField(u'轮播图名称', max_length=30)
     img = models.ImageField(u"图片", upload_to='image', default=None, storage=ImageStorage())
 
-    def get_abstract(self): # 把图片以字典的形式返回
+    def get_abstract(self):  # 把图片以字典的形式返回
         intro = {
             'id': self.id,
             'img': "{proto}://{domain}{path}".format(
@@ -163,3 +163,5 @@ class index_img(models.Model):
 
     def __str__(self):
         return self.imgname
+
+
