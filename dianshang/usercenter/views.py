@@ -1,8 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from usercenter.models import *
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET, require_POST
 from usercenter.utils import UploadMediaManager
+from .islogin import islogin
+from django.db import transaction
 
 
 # 上传图片
@@ -71,3 +73,107 @@ def sign_up(request):
                 new_user.isactive = False
                 new_user.save()
                 return JsonResponse({'error': 0})
+
+# 返回该用户的购物车信息
+#@islogin
+def view_cart(request):
+    cart_list = []
+    #uid = request.session['user_id']
+    uid = 1
+    user = UserInfo.objects.get(id=uid)
+    carts = user.carts.all()
+    for obj in carts.order_by('id'):
+        cart_list.append(obj.get_abstract())
+    return JsonResponse({'error': 0, 'cart_list': cart_list})
+
+
+# 添加购物车
+#@islogin
+def add_cart(request, gid, count):
+    #uid = request.session['user_id']
+    uid = 1
+    gid = int(gid)
+    count = int(count)
+    # 查询购物车是否已经有此商品，有则增加
+    carts = Cart.objects.filter(user_id=uid, goods_id=gid)
+    if len(carts) >= 1:
+        cart = carts[0]
+        cart.count = cart.count + count
+    else:
+        user = UserInfo.objects.get(id=uid)
+        good = Goods.objects.get(id=gid)
+        cart = Cart()
+        cart.user = user
+        cart.goods = good
+        cart.buycount = count
+    cart.save()
+    return redirect('/cart/')
+
+
+# 编辑购物车
+#@islogin
+def edit_cart(request, cart_id, count):
+    try:
+        cart = Cart.objects.get(id=int(cart_id))
+        count1 = cart.buycount = int(count)
+        cart.save()
+        data = {'ok': 0}
+    except Exception as e:
+        data = {'ok': count1}
+    return JsonResponse(data)
+
+#删除购物车
+#@islogin
+def delete_cart(request, cart_id):
+    cart = Cart.objects.get(id=int(cart_id))
+    cart.delete()
+
+
+#@islogin
+@transaction.atomic()
+def order_handle(request):
+    # 保存一个事物点
+    tran_id = transaction.savepoing()
+    try:
+        post = request.POST
+        orderlist = post.getlist('id[]')
+        total = post.get('total')
+        address = post.get('address')
+
+        order = Orders()
+        now = datetime.now()
+        uid = request.session.get('user_id')
+        user = UserInfo.objects.get(id=uid)
+        order.oid = '{}{}'.format(now.strftime('%Y%m%d%H%M%S').uid)
+        order.user = user
+        order.orderTime = now
+        order.ototal = Decimal(total)
+        order.addr = address
+        order.save()
+
+        #遍历购物车中提交的信息，创建订单详情表
+        for orderid in orderlist:
+            cart = Cart.objects.get(id=orderid)
+            good = cart.goods
+            if int(good.stockcount) >= int(cart.buycount):
+                good.stockcount -= int(cartinfo.count)
+                good.save()
+
+
+                orderdetail = OrderDetail()
+                orderdetail.goods = good
+                orderdetail.orders = order
+                orderdetail.price = Decimal(int(goodiprice))
+                orderdetail.count = int(cart.buycount)
+                orderdetail.save()
+
+                cart.delete()
+            else:
+                # 库存不够发出事务回滚
+                transaction.savepoint_rollback(tran_id)
+                #返回json供前台提示失败
+                return JsonResponse({'status': 2})
+
+    except Exception as e:
+        transaction.savepoint_rollback(tran_id)
+    return JsonResponse({'status': 1})

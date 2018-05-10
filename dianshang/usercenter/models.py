@@ -14,7 +14,7 @@ class UserInfo(models.Model):
     isactive = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.uName
+        return self.uname
 
 
 # 订单地址
@@ -32,22 +32,29 @@ class AddrInfo(models.Model):
 
 # 购物车
 class Cart(models.Model):
-    goodsid = models.ForeignKey('Goods', related_name='carts')
+    goods = models.ForeignKey('Goods', related_name='carts')
     buycount = models.IntegerField(default=1)
     user = models.ForeignKey('UserInfo', related_name='carts')
 
+    def get_abstract(self):
+        intro = {
+            'goodname': self.goods.goodname, 'buycount': self.buycount, 'user': self.user.uname, }
+        return intro
+
     def __str__(self):
-        return self.goodsName
+        return self.goods.goodname
 
 
 # 订单
 class Orders(models.Model):
+    oid = models.CharField(max_length=20, primary_key=True)
+    ototal = models.DecimalField(max_digits=6, decimal_places=2)
     isFinish = models.BooleanField(default=False)
     isDelete = models.BooleanField(default=False)
-    orderTime = models.DateTimeField()
+    orderTime = models.DateTimeField(auto_now=True)
     orderNumber = models.CharField(max_length=20, null=True, blank=True)
-    addr = models.IntegerField(null=True, blank=True)
-    userOrder = models.ForeignKey('UserInfo', related_name='orders')
+    addr = models.ForeignKey('AddrInfo', related_name='orders')
+    user = models.ForeignKey('UserInfo', related_name='orders')
 
     def __str__(self):
         return self.addr
@@ -55,14 +62,13 @@ class Orders(models.Model):
 
 # 订单里的一件商品信息
 class OrderDetail(models.Model):
-    goodName = models.CharField(max_length=30)
-    goodPrice = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     buyCount = models.IntegerField()
-    orders_id = models.ForeignKey('Orders', related_name='orderdetails')
-    good_id = models.ForeignKey('Goods', related_name='orderdetails')
+    orders = models.ForeignKey('Orders', related_name='orderdetail')
+    goods = models.ForeignKey('Goods', related_name='orderdetail')
 
     def __str__(self):
-        return self.goodName
+        return self.goods.goodname
 
 
 class GoodSort(models.Model):
